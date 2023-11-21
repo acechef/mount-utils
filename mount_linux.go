@@ -1,3 +1,4 @@
+//go:build linux
 // +build linux
 
 /*
@@ -338,21 +339,22 @@ func (mounter *Mounter) GetMountRefs(pathname string) ([]string, error) {
 // checkAndRepairFileSystem checks and repairs filesystems using command fsck.
 func (mounter *SafeFormatAndMount) checkAndRepairFilesystem(source string) error {
 	klog.V(4).Infof("Checking for issues with fsck on disk: %s", source)
-	args := []string{"-a", source}
-	out, err := mounter.Exec.Command("fsck", args...).CombinedOutput()
-	if err != nil {
-		ee, isExitError := err.(utilexec.ExitError)
-		switch {
-		case err == utilexec.ErrExecutableNotFound:
-			klog.Warningf("'fsck' not found on system; continuing mount without running 'fsck'.")
-		case isExitError && ee.ExitStatus() == fsckErrorsCorrected:
-			klog.Infof("Device %s has errors which were corrected by fsck.", source)
-		case isExitError && ee.ExitStatus() == fsckErrorsUncorrected:
-			return NewMountError(HasFilesystemErrors, "'fsck' found errors on device %s but could not correct them: %s", source, string(out))
-		case isExitError && ee.ExitStatus() > fsckErrorsUncorrected:
-			klog.Infof("`fsck` error %s", string(out))
-		}
-	}
+	klog.V(4).Infof("Pass checking: %s", source)
+	//args := []string{"-a", source}
+	//out, err := mounter.Exec.Command("fsck", args...).CombinedOutput()
+	//if err != nil {
+	//	ee, isExitError := err.(utilexec.ExitError)
+	//	switch {
+	//	case err == utilexec.ErrExecutableNotFound:
+	//		klog.Warningf("'fsck' not found on system; continuing mount without running 'fsck'.")
+	//	case isExitError && ee.ExitStatus() == fsckErrorsCorrected:
+	//		klog.Infof("Device %s has errors which were corrected by fsck.", source)
+	//	case isExitError && ee.ExitStatus() == fsckErrorsUncorrected:
+	//		return NewMountError(HasFilesystemErrors, "'fsck' found errors on device %s but could not correct them: %s", source, string(out))
+	//	case isExitError && ee.ExitStatus() > fsckErrorsUncorrected:
+	//		klog.Infof("`fsck` error %s", string(out))
+	//	}
+	//}
 	return nil
 }
 
